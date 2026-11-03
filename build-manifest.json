@@ -1,0 +1,36 @@
+{
+  "bundle": true,
+  "note": "bundled + minified with esbuild",
+  "files": [
+    {
+      "path": "index.html",
+      "bytes": 13283,
+      "gzip_bytes": 4695,
+      "sha256": "bf090f1b77bd"
+    },
+    {
+      "path": "script.js",
+      "bytes": 3560,
+      "gzip_bytes": 1367,
+      "sha256": "ebf0e4c67e4e"
+    },
+    {
+      "path": "style.css",
+      "bytes": 3423,
+      "gzip_bytes": 1094,
+      "sha256": "363481424d23"
+    },
+    {
+      "path": "assets/js/app.js",
+      "bytes": 497247,
+      "gzip_bytes": 128548,
+      "sha256": "f72b27070364"
+    },
+    {
+      "path": "assets/js/app.js.map",
+      "bytes": 1992336,
+      "gzip_bytes": 409809,
+      "sha256": "9c49f72c5e45"
+    }
+  ]
+}

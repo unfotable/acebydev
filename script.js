@@ -21,16 +21,25 @@ var messagesEl = document.getElementById('messages');
 var chatForm   = document.getElementById('chat-form');
 var chatInput  = document.getElementById('chat-input');
 
+/* Storage guard: localStorage grows without bounds otherwise (the original
+   kept every message forever until the quota blew up). */
+var MAX_MESSAGES = 200;
+
 function loadMessages() {
   try {
-    return JSON.parse(localStorage.getItem('chat_messages')) || [];
+    var parsed = JSON.parse(localStorage.getItem('chat_messages'));
+    return Array.isArray(parsed) ? parsed : [];
   } catch (e) {
     return [];
   }
 }
 
 function saveMessages(list) {
-  localStorage.setItem('chat_messages', JSON.stringify(list));
+  try {
+    localStorage.setItem('chat_messages', JSON.stringify(list.slice(-MAX_MESSAGES)));
+  } catch (e) {
+    /* quota or privacy mode — the chat still works in memory for this visit */
+  }
 }
 
 function addBubble(msg) {
@@ -41,8 +50,15 @@ function addBubble(msg) {
 }
 
 function renderMessages() {
-  messagesEl.innerHTML = '';
-  loadMessages().forEach(addBubble);
+  messagesEl.replaceChildren.apply(messagesEl, []);
+  var fragment = document.createDocumentFragment();
+  loadMessages().forEach(function (msg) {
+    var bubble = document.createElement('div');
+    bubble.className = 'bubble ' + (msg.self ? 'self' : 'other');
+    bubble.textContent = msg.text;
+    fragment.appendChild(bubble);
+  });
+  messagesEl.appendChild(fragment);
   messagesEl.scrollTop = messagesEl.scrollHeight;
 }
 
@@ -56,6 +72,9 @@ chatForm.addEventListener('submit', function (e) {
   list.push(msg);
   saveMessages(list);
   addBubble(msg);
+  if (messagesEl.children.length > MAX_MESSAGES) {
+    messagesEl.removeChild(messagesEl.firstChild);
+  }
   messagesEl.scrollTop = messagesEl.scrollHeight;
 
   chatInput.value = '';
@@ -65,6 +84,7 @@ chatForm.addEventListener('submit', function (e) {
 /* ===== ID making (fresh ID every time, old one replaced) ===== */
 var idValue   = document.getElementById('current-id');
 var makeIdBtn = document.getElementById('make-id');
+var lastGeneratedId = null; // kept visible when storage is unavailable
 
 function makeNewId() {
   var bytes = crypto.getRandomValues(new Uint8Array(8));
@@ -76,12 +96,17 @@ function makeNewId() {
 }
 
 function showCurrentId() {
-  idValue.textContent = localStorage.getItem('my_id') || '----';
+  idValue.textContent = lastGeneratedId || localStorage.getItem('my_id') || '----';
 }
 
 makeIdBtn.addEventListener('click', function () {
   var id = makeNewId();              // generate a brand new ID
-  localStorage.setItem('my_id', id); // old ID is removed/replaced
+  lastGeneratedId = id;
+  try {
+    localStorage.setItem('my_id', id); // old ID is removed/replaced
+  } catch (e) {
+    /* storage unavailable — keep the ID visible for this visit */
+  }
   showCurrentId();
 });
 

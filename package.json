@@ -1,0 +1,18 @@
+{
+  "name": "acebydev",
+  "version": "1.0.0",
+  "private": true,
+  "description": "unfotable — selected projects (static portfolio with a three.js bookshelf)",
+  "type": "module",
+  "scripts": {
+    "build": "python3 tools/build.py",
+    "audit": "python3 tools/audit.py",
+    "serve": "python3 tools/serve.py",
+    "test:js": "node --test --experimental-test-coverage tests/js/*.test.mjs",
+    "test:py": "python3 -m unittest discover -s tests -p 'test_*.py'"
+  },
+  "devDependencies": {
+    "esbuild": "^0.28.2",
+    "three": "0.160.0"
+  }
+}
